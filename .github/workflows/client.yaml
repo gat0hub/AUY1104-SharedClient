@@ -1,13 +1,14 @@
-on: [push]                      # Trigger: cualquier push a cualquier ramaaaaaa
+on:
+  push:
+    tags:
+    - 'v*.*.*'                # Trigger: cualquier push a cualquier ramaaaaaa
 
 jobs:
-  mi-job:
-    # Cambia TU_USUARIO_AQUI por tu usuario de GitHub. 
-    # Usaremos @main asumiendo que ahí guardaste tu workflow proveedor.
+  usar-receta-compartida:
     uses: gat0hub/AUY1104Pipelines/.github/workflows/deploy-api.yaml@main
     with:
-      image-name: "algo"
-      image-tag: ${{ github.sha }}
+      image-name: "primo-de-algo"
+      image-tag: ${{ github.ref_name }}
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # Del repo SharedClient
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  # Del repo SharedClient
