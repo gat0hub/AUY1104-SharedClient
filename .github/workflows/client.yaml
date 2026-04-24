@@ -9,7 +9,7 @@ jobs:
   mi-job:
     uses: gat0hub/AUY1104Pipelines/.github/workflows/deploy-api.yaml@main
     with:
-      image-name: "imagen docker"
+      image-name: "imagen-docker"
       image-tag: ${{ github.ref_name }} # Extrae el nombre del tag automáticamente
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  
