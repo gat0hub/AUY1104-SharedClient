@@ -1,0 +1,11 @@
+name: Test Pipeline
+
+on:
+  push:
+    branches:
+      - '**'      # Trigger: cualquier push a cualquier rama...
+      - '!main'   # ...EXCEPTO a la rama main. Y automáticamente ignora tags.
+
+jobs:
+  mi-job-test:
+    uses: gat0hub/AUY1104Pipelines/.github/workflows/test-api.yaml@main
