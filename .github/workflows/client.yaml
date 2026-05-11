@@ -3,17 +3,19 @@
 # Cuando publicas una versión con etiqueta tipo v1.2.3, GitHub ejecuta
 # la receta del repo central (SharedWorkflows) para empaquetar y subir la imagen.
 # ─────────────────────────────────────────────────────────────
+
 on:
   push:
     tags:
-      - 'v*' # Solo cuando el tag parece una versión: v1.0.0, v2.3.4, etc.
+      - 'v*.*.*'
+      # Solo cuando el tag parece una versión: v1.0.0, v2.3.4, etc.
   workflow_dispatch:
 
 jobs:
   usar-receta-compartida:
     # Aquí no repetimos los pasos de Docker: delegamos al otro repositorio
     uses: asanchezo-duoc/AUY1104-SharedWorkflows/.github/workflows/deploy-api.yaml@main
-    
+
     # Valores que le “pasamos” a la receta (alineado a deploy-api.yaml en SharedWorkflows)
     with:
       image-name: demo-api
@@ -21,7 +23,7 @@ jobs:
       image-tag: ${{ github.ref_name }}
       # Variable de repo (Settings → Secrets and variables → Actions → Variables)
       k3s-server-public-ip: ${{ vars.K3S_SERVER_PUBLIC_IP }}
-    
+
     # Mismos secretos que declara workflow_call en deploy-api.yaml (DOCKER_* + SSH al nodo K3s)
     secrets:
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
