@@ -21,8 +21,8 @@ spec:
     metadata:
       labels:
         app: demo-api
-        annotations:
-          rollout-version: "2"
+      annotations:
+        rollout-version: "2"
     spec:
       containers:
         - name: api
