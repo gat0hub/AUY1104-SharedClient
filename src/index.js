@@ -1,3 +1,4 @@
+throw new Error("Fallo provocado a propósito para el entregable 4.3");
 const express = require('express');
 const {
   construirSaludo,
