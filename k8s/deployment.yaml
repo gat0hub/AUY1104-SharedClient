@@ -11,7 +11,7 @@ metadata:
   name: demo-api
   labels:
     app: demo-api
-    version: v2 
+     
 spec:
   replicas: 1
   selector:
@@ -21,8 +21,7 @@ spec:
     metadata:
       labels:
         app: demo-api
-      annotations:
-        rollout-version: "2"
+     
     spec:
       containers:
         - name: api
