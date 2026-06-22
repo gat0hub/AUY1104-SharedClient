@@ -11,7 +11,7 @@ function createApp() {
   const app = express();
 
   app.use(express.json());
-#endpointdesalud
+// endpointdesalud
   app.get('/health', (req, res) => {
     res.json(healthPayload());
   });
