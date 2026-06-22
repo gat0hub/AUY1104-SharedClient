@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: branfigueroa/demo-api:version-rota-999
+          image: branfigueroa/demo-api:latest
           imagePullPolicy: Always
           ports:
             - name: http
