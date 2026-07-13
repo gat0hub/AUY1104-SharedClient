@@ -58,3 +58,17 @@ El pipeline está diseñado bajo el principio de "defensa en capas", garantizand
 3. **Ejecución del Rollback:** Utilizando la condicional de GitHub Actions `if: failure()`, se activa la etapa de remediación automática, la cual:
    * Aplica un parche de seguridad al `Service` para ratificar que siga apuntando al slot antiguo y saludable.
    * Ejecuta un borrado destructivo del deployment corrupto (`kubectl delete deployment`) para purgar los contenedores insalubres del clúster.
+
+## 4. Análisis de Impacto: MTTR y Costos Operativos en AWS
+
+Como parte del diseño de esta arquitectura, se evaluó el impacto de la estrategia Blue-Green y su mecanismo de remediación en dos métricas críticas de operación y negocio:
+
+### Minimización del MTTR (Mean Time To Recovery)
+El mecanismo propuesto reduce el **MTTR** prácticamente a **segundos** y requiere **cero intervención humana**. Tradicionalmente, recuperarse de un despliegue defectuoso implica esperar alertas de monitoreo, diagnosticar el fallo y gatillar manualmente un despliegue de reversión. En nuestra implementación:
+* **Prevención:** El error se intercepta en la fase de validación de salud (`readinessProbe` + `timeout`) antes de que se libere tráfico real.
+* **Autocorrección instantánea:** Al gatillarse el condicional `if: failure()`, el script inyecta un `patch` al `Service` de Kubernetes. El sistema vuelve a su estado estable anterior a la velocidad en que la API de Kubernetes procesa una actualización de red, evitando tiempos muertos y mitigando la caída al instante.
+
+### Impacto en los Costos Operativos (AWS)
+La adopción de la estrategia Blue-Green conlleva un *trade-off* (compromiso) inherente respecto a los costos de infraestructura en la nube:
+* **Consumo adicional temporal:** Durante la ventana de ejecución del pipeline, el clúster (operando sobre instancias EC2 de AWS) debe alojar el doble de carga, ya que requiere mantener operativos los contenedores *Blue* y *Green* simultáneamente. Esto implica picos temporales en el consumo de CPU y memoria RAM de las instancias.
+* **Optimización mediante limpieza automatizada:** Para evitar sobrecostos por recursos inactivos o defectuosos, la etapa de remediación incluye una tarea destructiva explícita (`kubectl delete deployment demo-api-${TARGET_SLOT} --ignore-not-found=true`). Si la nueva versión falla, el clúster destruye los contenedores insalubres de forma automática e inmediata, liberando el cómputo de EC2 y asegurando que la factura de AWS no se infle por recursos estancados o huérfanos.
