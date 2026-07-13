@@ -30,7 +30,23 @@ El desvío del tráfico de producción no se realiza duplicando infraestructura 
    `kubectl get service demo-api -o jsonpath='{.spec.selector.version}'`
 2. **Aislamiento:** El nuevo código se despliega siempre en el "slot" o color inactivo de manera 100% aislada. Los usuarios siguen consumiendo la versión antigua sin interrupciones.
 3. **Inyección de Variables:** Usando la herramienta `envsubst`, se reemplazan dinámicamente las variables de entorno en los manifiestos YAML (`k8s/deployment.yaml`), asignando los tags de imagen y las etiquetas del slot objetivo (`blue` o `green`).
+
+Activo usando blue y Despliegue usando green:
 <img width="752" height="247" alt="image" src="https://github.com/user-attachments/assets/81be902e-8ddf-4c9b-9123-ac20d2402eed" />
+
+Activo usando green y Despliegue usando blue:
+<img width="930" height="308" alt="image" src="https://github.com/user-attachments/assets/bde10902-de11-42d3-9385-97bf720a7f13" />
+
+Pods blue y  green corriendo simultáneamente:
+<img width="916" height="160" alt="image" src="https://github.com/user-attachments/assets/f620439e-9c59-446b-b220-2e11417962d0" />
+<img width="887" height="119" alt="image" src="https://github.com/user-attachments/assets/1a4e9452-3b8a-4d69-a9b7-371da30de007" />
+
+Verificacion de health via putty y web:
+<img width="915" height="254" alt="image" src="https://github.com/user-attachments/assets/35142682-b4ae-49a3-a03d-7db7ace844b6" />
+
+<img width="780" height="395" alt="image" src="https://github.com/user-attachments/assets/b6c3f988-df98-4dd6-9520-b2593b840a4b" />
+
+
 
 ---
 
@@ -59,6 +75,9 @@ El pipeline está diseñado bajo el principio de "defensa en capas", garantizand
 3. **Ejecución del Rollback:** Utilizando la condicional de GitHub Actions `if: failure()`, se activa la etapa de remediación automática, la cual:
    * Aplica un parche de seguridad al `Service` para ratificar que siga apuntando al slot antiguo y saludable.
    * Ejecuta un borrado destructivo del deployment corrupto (`kubectl delete deployment`) para purgar los contenedores insalubres del clúster.
+   Rollback de Ejemplo:
+<img width="747" height="651" alt="image" src="https://github.com/user-attachments/assets/01a0f38d-7c5e-41c4-80f6-a12174cf1d64" />
+
 
 ## 4. Análisis de Impacto: MTTR y Costos Operativos en AWS
 
