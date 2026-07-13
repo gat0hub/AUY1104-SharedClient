@@ -1,49 +1,26 @@
-# Misma convención que client.yaml → image-name: demo-api
-# Sustituir YOUR_DOCKERHUB_USERNAME por tu usuario (igual que secret DOCKER_USERNAME).
-# La receta deploy-api publica: <usuario>/demo-api:<tag> y :latest
-#
-# Borde HTTP: no duplicar HAProxy aquí. Aplicar primero en el cluster
-# AUY1104-SharedWorkflows k8s-manifests/haproxy-academic/shared/
-# (ea2-haproxy-academic). Ruta pública :30088 …/backend/* → este Service demo-api:3000.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # 1. El nombre ahora incluye el color dinámicamente
-  name: demo-api-${COLOR}
-  labels:
-    app: demo-api
-    color: ${COLOR} # <-- Etiqueta de color añadida
+  name: ${APP_NAME}-${SLOT}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: demo-api
-      color: ${COLOR} # <-- Selector de color añadido
+      app: ${APP_NAME}
+      version: ${SLOT}
   template:
     metadata:
       labels:
-        app: demo-api
-        color: ${COLOR} # <-- Etiqueta de color en los pods
+        app: ${APP_NAME}
+        version: ${SLOT}
     spec:
       containers:
         - name: api
-          # 2. La imagen ahora es dinámica para asegurar que se despliegue el commit exacto
-          image: ${FULL_IMAGE}
-          imagePullPolicy: Always
+          image: ${IMAGE}
           ports:
-            - name: http
-              containerPort: 3000
+            - containerPort: 3000
           readinessProbe:
             httpGet:
               path: /health
-              port: http
-            initialDelaySeconds: 30
-            timeoutSeconds: 10 
-            periodSeconds: 10
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            timeoutSeconds: 10
-            periodSeconds: 20
+              port: 3000
+            initialDelaySeconds: 5
