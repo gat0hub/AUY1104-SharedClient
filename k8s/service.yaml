@@ -6,8 +6,8 @@ spec:
   type: NodePort
   selector:
     app: demo-api
-    # No le ponemos la variable ${SLOT} aquí. El paso 7 del pipeline se encarga 
-    # de inyectar el color correcto una vez que los pods están sanos.
+    # 
+    # 
   ports:
     - port: 3000
       targetPort: 3000
