@@ -30,6 +30,7 @@ El desvío del tráfico de producción no se realiza duplicando infraestructura 
    `kubectl get service demo-api -o jsonpath='{.spec.selector.version}'`
 2. **Aislamiento:** El nuevo código se despliega siempre en el "slot" o color inactivo de manera 100% aislada. Los usuarios siguen consumiendo la versión antigua sin interrupciones.
 3. **Inyección de Variables:** Usando la herramienta `envsubst`, se reemplazan dinámicamente las variables de entorno en los manifiestos YAML (`k8s/deployment.yaml`), asignando los tags de imagen y las etiquetas del slot objetivo (`blue` o `green`).
+<img width="752" height="247" alt="image" src="https://github.com/user-attachments/assets/81be902e-8ddf-4c9b-9123-ac20d2402eed" />
 
 ---
 
