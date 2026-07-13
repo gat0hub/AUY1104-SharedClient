@@ -8,24 +8,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-api
+  # 1. El nombre ahora incluye el color dinámicamente
+  name: demo-api-${COLOR}
   labels:
     app: demo-api
-     
+    color: ${COLOR} # <-- Etiqueta de color añadida
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: demo-api
+      color: ${COLOR} # <-- Selector de color añadido
   template:
     metadata:
       labels:
         app: demo-api
-     
+        color: ${COLOR} # <-- Etiqueta de color en los pods
     spec:
       containers:
         - name: api
-          image: branfigueroa/demo-api:latest
+          # 2. La imagen ahora es dinámica para asegurar que se despliegue el commit exacto
+          image: ${FULL_IMAGE}
           imagePullPolicy: Always
           ports:
             - name: http
