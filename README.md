@@ -72,3 +72,23 @@ El mecanismo propuesto reduce el **MTTR** prácticamente a **segundos** y requie
 La adopción de la estrategia Blue-Green conlleva un *trade-off* (compromiso) inherente respecto a los costos de infraestructura en la nube:
 * **Consumo adicional temporal:** Durante la ventana de ejecución del pipeline, el clúster (operando sobre instancias EC2 de AWS) debe alojar el doble de carga, ya que requiere mantener operativos los contenedores *Blue* y *Green* simultáneamente. Esto implica picos temporales en el consumo de CPU y memoria RAM de las instancias.
 * **Optimización mediante limpieza automatizada:** Para evitar sobrecostos por recursos inactivos o defectuosos, la etapa de remediación incluye una tarea destructiva explícita (`kubectl delete deployment demo-api-${TARGET_SLOT} --ignore-not-found=true`). Si la nueva versión falla, el clúster destruye los contenedores insalubres de forma automática e inmediata, liberando el cómputo de EC2 y asegurando que la factura de AWS no se infle por recursos estancados o huérfanos.
+
+## 5. Impacto Arquitectónico en TechMarket
+
+La implementación de este pipeline centralizado transforma el ciclo de vida del software para **TechMarket**, logrando dos beneficios fundamentales para el negocio:
+
+*   **Aceleración de los Tiempos de Despliegue:** Al utilizar plantillas reutilizables (`workflow_call`), el equipo de TechMarket ya no necesita escribir scripts manuales ni conectarse por SSH para cada actualización. El proceso que antes tomaba minutos u horas de coordinación manual, ahora se ejecuta de forma paralela y automatizada en GitHub Actions en menos de 2 minutos.
+*   **Reducción de Errores Manuales:** Se elimina el factor de error humano (como escribir mal un tag o borrar un servicio accidentalmente). Las validaciones obligatorias, como el análisis del clúster (`envsubst`) y los bloqueos por *timeout* (`kubectl rollout status`), aseguran que ningún código defectuoso pase a producción por un descuido humano.
+
+---
+
+## 6. Comparativa Técnica de Estrategias de Despliegue en Kubernetes
+
+Para sustentar la elección de Blue-Green, se analizó el comportamiento de las distintas estrategias nativas y avanzadas dentro del ecosistema de Kubernetes:
+
+| Estrategia | Comportamiento en Kubernetes | Ventajas | Desventajas / Riesgos |
+| :--- | :--- | :--- | :--- |
+| **All-in-once (Recreate)** | Borra los Pods de la versión anterior (`A`) completamente antes de crear los Pods de la nueva versión (`B`). | No hay problemas de compatibilidad de versiones. Muy fácil de configurar. | **Downtime inaceptable.** El servicio se cae mientras se levantan los nuevos contenedores. |
+| **Rolling Update** | Estrategia por defecto en Kubernetes. Reemplaza los Pods uno por uno de forma gradual (ej. `maxSurge` y `maxUnavailable`). | Mantiene disponibilidad continua sin requerir doble infraestructura. | Los usuarios pueden recibir respuestas mixtas (versión A y B operando al mismo tiempo). Rollback lento. |
+| **Canary** | Usa el `Service` o un *Ingress* para enviar un porcentaje pequeño de tráfico (ej. 10%) a los Pods nuevos y el resto a los antiguos. | Riesgo mínimo. Permite probar en producción con usuarios reales. | Alta complejidad técnica de red. Requiere monitoreo exhaustivo para decidir cuándo avanzar al 100%. |
+| **Blue-Green (Elegida)** | Mantiene dos *Deployments* aislados (`blue` y `green`). El `Service` de K8s actúa como un interruptor de red (`spec.selector`) que cambia el tráfico al 100% en un instante. | Aislamiento total de versiones, Zero-Downtime y Rollback inmediato (un solo comando). | Mayor consumo de recursos computacionales, ya que exige mantener ambos entornos activos temporalmente. |
