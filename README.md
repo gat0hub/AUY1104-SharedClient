@@ -75,6 +75,7 @@ El pipeline está diseñado bajo el principio de "defensa en capas", garantizand
 3. **Ejecución del Rollback:** Utilizando la condicional de GitHub Actions `if: failure()`, se activa la etapa de remediación automática, la cual:
    * Aplica un parche de seguridad al `Service` para ratificar que siga apuntando al slot antiguo y saludable.
    * Ejecuta un borrado destructivo del deployment corrupto (`kubectl delete deployment`) para purgar los contenedores insalubres del clúster.
+   
    Rollback de Ejemplo:
 <img width="747" height="651" alt="image" src="https://github.com/user-attachments/assets/01a0f38d-7c5e-41c4-80f6-a12174cf1d64" />
 
