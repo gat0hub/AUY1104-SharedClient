@@ -9,6 +9,9 @@ spec:
   type: NodePort 
   selector:
     app: demo-api
+    # Aquí agregamos el color inicial. El workflow leerá esto y sabrá 
+    # que debe desplegar la nueva versión en 'green'.
+    color: blue 
   ports:
     - name: http
       port: 3000       # Puerto interno del Service
